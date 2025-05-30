@@ -1,0 +1,504 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Agent Tree View -->
+    <record id="view_hardware_agent_tree" model="ir.ui.view">
+        <field name="name">hardware.agent.tree</field>
+        <field name="model">hardware.agent</field>
+        <field name="arch" type="xml">
+            <tree decoration-success="status == 'online'" 
+                  decoration-danger="status == 'offline'">
+                <field name="name"/>
+                <field name="ip_address"/>
+                <field name="status"/>
+                <field name="device_count"/>
+                <field name="last_heartbeat"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Agent Form View -->
+    <record id="view_hardware_agent_form" model="ir.ui.view">
+        <field name="name">hardware.agent.form</field>
+        <field name="model">hardware.agent</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_ping_agent" 
+                            string="Ping Agent" 
+                            type="object" 
+                            class="btn-primary"/>
+                    <field name="status" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="agent_id"/>
+                        </group>
+                        <group>
+                            <field name="ip_address"/>
+                            <field name="last_heartbeat"/>
+                            <field name="device_count"/>
+                        </group>
+                    </group>
+                    
+                    <notebook>
+                        <page string="Devices">
+                            <field name="device_ids" readonly="1">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="device_type"/>
+                                    <field name="status"/>
+                                    <field name="last_event"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Hardware Device Tree View -->
+    <record id="view_hardware_device_tree" model="ir.ui.view">
+        <field name="name">hardware.device.tree</field>
+        <field name="model">hardware.device</field>
+        <field name="arch" type="xml">
+            <tree string="Hardware Devices">
+                <field name="name"/>
+                <field name="device_type"/>
+                <field name="connection_type"/>
+                <field name="identifier"/>
+                <field name="status"/>
+                <field name="agent_id"/>
+                <field name="last_activity"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Hardware Device Form View -->
+    <record id="view_hardware_device_form" model="ir.ui.view">
+        <field name="name">hardware.device.form</field>
+        <field name="model">hardware.device</field>
+        <field name="arch" type="xml">
+            <form string="Hardware Device">
+                <header>
+                    <button name="action_connect" string="Connect" type="object" 
+                            class="btn-primary" attrs="{'invisible': [('status', '=', 'connected')]}"/>
+                    <button name="action_disconnect" string="Disconnect" type="object" 
+                            class="btn-secondary" attrs="{'invisible': [('status', '!=', 'connected')]}"/>
+                    <button name="action_test_device" string="Test Device" type="object" 
+                            class="btn-info" attrs="{'invisible': [('status', '!=', 'connected')]}"/>
+                    <field name="status" widget="statusbar" statusbar_visible="disconnected,connecting,connected,error"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Device Name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="device_type"/>
+                            <field name="connection_type"/>
+                            <field name="identifier"/>
+                            <field name="agent_id"/>
+                        </group>
+                        <group>
+                            <field name="manufacturer"/>
+                            <field name="model"/>
+                            <field name="serial_number"/>
+                            <field name="firmware_version"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="last_activity"/>
+                            <field name="connection_attempts"/>
+                            <field name="active"/>
+                        </group>
+                        <group>
+                            <field name="auto_reconnect"/>
+                            <field name="timeout"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Connection Details" attrs="{'invisible': [('connection_type', '=', False)]}">
+                            <group attrs="{'invisible': [('connection_type', '!=', 'usb')]}">
+                                <group string="USB Details">
+                                    <field name="usb_vendor_id"/>
+                                    <field name="usb_product_id"/>
+                                    <field name="usb_port"/>
+                                </group>
+                            </group>
+                            <group attrs="{'invisible': [('connection_type', '!=', 'bluetooth')]}">
+                                <group string="Bluetooth Details">
+                                    <field name="bluetooth_address"/>
+                                    <field name="bluetooth_name"/>
+                                    <field name="rssi"/>
+                                </group>
+                            </group>
+                            <group attrs="{'invisible': [('connection_type', '!=', 'wifi')]}">
+                                <group string="Network Details">
+                                    <field name="ip_address"/>
+                                    <field name="mac_address"/>
+                                    <field name="hostname"/>
+                                    <field name="port"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Device Configuration">
+                            <group string="Barcode Scanner Settings" attrs="{'invisible': [('device_type', '!=', 'barcode_scanner')]}">
+                                <field name="barcode_format"/>
+                                <field name="scan_mode"/>
+                                <field name="beep_enabled"/>
+                                <field name="led_enabled"/>
+                            </group>
+                            <group string="NFC Reader Settings" attrs="{'invisible': [('device_type', '!=', 'nfc_reader')]}">
+                                <field name="nfc_protocol"/>
+                                <field name="read_timeout"/>
+                                <field name="auto_read"/>
+                            </group>
+                            <group string="QR Scanner Settings" attrs="{'invisible': [('device_type', '!=', 'qr_scanner')]}">
+                                <field name="qr_format"/>
+                                <field name="image_quality"/>
+                                <field name="auto_focus"/>
+                            </group>
+                        </page>
+                        <page string="Activity Log">
+                            <field name="activity_log_ids">
+                                <tree>
+                                    <field name="timestamp"/>
+                                    <field name="activity_type"/>
+                                    <field name="data"/>
+                                    <field name="status"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Barcode Scan Tree View -->
+    <record id="view_barcode_scan_tree" model="ir.ui.view">
+        <field name="name">barcode.scan.tree</field>
+        <field name="model">barcode.scan</field>
+        <field name="arch" type="xml">
+            <tree string="Barcode Scans">
+                <field name="timestamp"/>
+                <field name="barcode"/>
+                <field name="format"/>
+                <field name="device_id"/>
+                <field name="processed"/>
+                <field name="error_message"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Barcode Scan Form View -->
+    <record id="view_barcode_scan_form" model="ir.ui.view">
+        <field name="name">barcode.scan.form</field>
+        <field name="model">barcode.scan</field>
+        <field name="arch" type="xml">
+            <form string="Barcode Scan">
+                <header>
+                    <button name="action_process" string="Process" type="object" 
+                            class="btn-primary" attrs="{'invisible': [('processed', '=', True)]}"/>
+                    <field name="processed" widget="statusbar" statusbar_visible="false,true"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="timestamp"/>
+                            <field name="barcode"/>
+                            <field name="format"/>
+                            <field name="device_id"/>
+                        </group>
+                        <group>
+                            <field name="raw_data"/>
+                            <field name="error_message"/>
+                            <field name="processing_time"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- NFC Read Tree View -->
+    <record id="view_nfc_read_tree" model="ir.ui.view">
+        <field name="name">nfc.read.tree</field>
+        <field name="model">nfc.read</field>
+        <field name="arch" type="xml">
+            <tree string="NFC Reads">
+                <field name="timestamp"/>
+                <field name="uid"/>
+                <field name="tag_type"/>
+                <field name="device_id"/>
+                <field name="processed"/>
+                <field name="error_message"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- NFC Read Form View -->
+    <record id="view_nfc_read_form" model="ir.ui.view">
+        <field name="name">nfc.read.form</field>
+        <field name="model">nfc.read</field>
+        <field name="arch" type="xml">
+            <form string="NFC Read">
+                <header>
+                    <button name="action_process" string="Process" type="object" 
+                            class="btn-primary" attrs="{'invisible': [('processed', '=', True)]}"/>
+                    <field name="processed" widget="statusbar" statusbar_visible="false,true"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="timestamp"/>
+                            <field name="uid"/>
+                            <field name="tag_type"/>
+                            <field name="device_id"/>
+                        </group>
+                        <group>
+                            <field name="data"/>
+                            <field name="error_message"/>
+                            <field name="processing_time"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- QR Scan Tree View -->
+    <record id="view_qr_scan_tree" model="ir.ui.view">
+        <field name="name">qr.scan.tree</field>
+        <field name="model">qr.scan</field>
+        <field name="arch" type="xml">
+            <tree string="QR Code Scans">
+                <field name="timestamp"/>
+                <field name="qr_data"/>
+                <field name="format"/>
+                <field name="device_id"/>
+                <field name="processed"/>
+                <field name="error_message"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- QR Scan Form View -->
+    <record id="view_qr_scan_form" model="ir.ui.view">
+        <field name="name">qr.scan.form</field>
+        <field name="model">qr.scan</field>
+        <field name="arch" type="xml">
+            <form string="QR Code Scan">
+                <header>
+                    <button name="action_process" string="Process" type="object" 
+                            class="btn-primary" attrs="{'invisible': [('processed', '=', True)]}"/>
+                    <field name="processed" widget="statusbar" statusbar_visible="false,true"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="timestamp"/>
+                            <field name="qr_data"/>
+                            <field name="format"/>
+                            <field name="device_id"/>
+                        </group>
+                        <group>
+                            <field name="image_data"/>
+                            <field name="error_message"/>
+                            <field name="processing_time"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Device Pairing Wizard -->
+    <record id="view_device_pairing_wizard_form" model="ir.ui.view">
+        <field name="name">device.pairing.wizard.form</field>
+        <field name="model">device.pairing.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="agent_id"/>
+                        <field name="device_type"/>
+                        <field name="connection_type"/>
+                        <field name="pairing_code" attrs="{'invisible': [('connection_type', '!=', 'bluetooth')]}"/>
+                        <field name="ip_address" attrs="{'invisible': [('connection_type', '!=', 'wifi')]}"/>
+                        <field name="port" attrs="{'invisible': [('connection_type', '!=', 'wifi')]}"/>
+                    </group>
+                    <footer>
+                        <button name="action_pair" string="Pair Device" type="object" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Actions -->
+    <record id="action_hardware_agent" model="ir.actions.act_window">
+        <field name="name">Hardware Agents</field>
+        <field name="res_model">hardware.agent</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first hardware agent!
+            </p>
+            <p>
+                Hardware agents manage connections to barcode scanners, NFC readers, and QR code scanners.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_hardware_device" model="ir.actions.act_window">
+        <field name="name">Hardware Devices</field>
+        <field name="res_model">hardware.device</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No devices found!
+            </p>
+            <p>
+                Connect hardware agents to discover barcode scanners, NFC readers, and QR code scanners.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_barcode_scan" model="ir.actions.act_window">
+        <field name="name">Barcode Scans</field>
+        <field name="res_model">barcode.scan</field>
+        <field name="view_mode">tree,form</field>
+        <field name="context">{'search_default_today': 1}</field>
+    </record>
+
+    <record id="action_nfc_read" model="ir.actions.act_window">
+        <field name="name">NFC Reads</field>
+        <field name="res_model">nfc.read</field>
+        <field name="view_mode">tree,form</field>
+        <field name="context">{'search_default_today': 1}</field>
+    </record>
+
+    <record id="action_qr_scan" model="ir.actions.act_window">
+        <field name="name">QR Code Scans</field>
+        <field name="res_model">qr.scan</field>
+        <field name="view_mode">tree,form</field>
+        <field name="context">{'search_default_today': 1}</field>
+    </record>
+
+    <record id="action_device_pairing_wizard" model="ir.actions.act_window">
+        <field name="name">Pair New Device</field>
+        <field name="res_model">device.pairing.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'default_agent_id': active_id}</field>
+    </record>
+
+    <!-- Search Views -->
+    <record id="view_hardware_agent_search" model="ir.ui.view">
+        <field name="name">hardware.agent.search</field>
+        <field name="model">hardware.agent</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="ip_address"/>
+                <field name="agent_type"/>
+                <filter string="Connected" name="connected" domain="[('status', '=', 'connected')]"/>
+                <filter string="Disconnected" name="disconnected" domain="[('status', '=', 'disconnected')]"/>
+                <filter string="Active" name="active" domain="[('active', '=', True)]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Status" name="group_status" context="{'group_by': 'status'}"/>
+                    <filter string="Agent Type" name="group_type" context="{'group_by': 'agent_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_hardware_device_search" model="ir.ui.view">
+        <field name="name">hardware.device.search</field>
+        <field name="model">hardware.device</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="device_type"/>
+                <field name="identifier"/>
+                <field name="agent_id"/>
+                <filter string="Barcode Scanners" name="barcode" domain="[('device_type', '=', 'barcode_scanner')]"/>
+                <filter string="NFC Readers" name="nfc" domain="[('device_type', '=', 'nfc_reader')]"/>
+                <filter string="QR Scanners" name="qr" domain="[('device_type', '=', 'qr_scanner')]"/>
+                <filter string="Connected" name="connected" domain="[('status', '=', 'connected')]"/>
+                <filter string="Active" name="active" domain="[('active', '=', True)]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Device Type" name="group_type" context="{'group_by': 'device_type'}"/>
+                    <filter string="Connection Type" name="group_connection" context="{'group_by': 'connection_type'}"/>
+                    <filter string="Agent" name="group_agent" context="{'group_by': 'agent_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_barcode_scan_search" model="ir.ui.view">
+        <field name="name">barcode.scan.search</field>
+        <field name="model">barcode.scan</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="barcode"/>
+                <field name="device_id"/>
+                <filter string="Today" name="today" domain="[('timestamp', '>=', datetime.datetime.now().replace(hour=0, minute=0, second=0))]"/>
+                <filter string="Processed" name="processed" domain="[('processed', '=', True)]"/>
+                <filter string="Unprocessed" name="unprocessed" domain="[('processed', '=', False)]"/>
+                <filter string="Errors" name="errors" domain="[('error_message', '!=', False)]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Device" name="group_device" context="{'group_by': 'device_id'}"/>
+                    <filter string="Format" name="group_format" context="{'group_by': 'format'}"/>
+                    <filter string="Date" name="group_date" context="{'group_by': 'timestamp:day'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Menu Items -->
+    <menuitem id="menu_hardware_root" name="Hardware" sequence="50"/>
+    
+    <menuitem id="menu_hardware_agents" name="Agents" parent="menu_hardware_root" 
+              action="action_hardware_agent" sequence="10"/>
+    
+    <menuitem id="menu_hardware_devices" name="Devices" parent="menu_hardware_root" 
+              action="action_hardware_device" sequence="20"/>
+    
+    <menuitem id="menu_hardware_data" name="Scanned Data" parent="menu_hardware_root" sequence="30"/>
+    
+    <menuitem id="menu_barcode_scans" name="Barcode Scans" parent="menu_hardware_data" 
+              action="action_barcode_scan" sequence="10"/>
+    
+    <menuitem id="menu_nfc_reads" name="NFC Reads" parent="menu_hardware<record id="view_iot_pairing_wizard_form" model="ir.ui.view">
+    <field name="name">iot.pairing.wizard.form</field>
+    <field name="model">iot.pairing.wizard</field>
+    <field name="arch" type="xml">
+        <form>
+            <sheet>
+                <group>
+                    <field name="pairing_code"/>
+                </group>
+                <footer>
+                    <button name="action_pair" string="Pair" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </sheet>
+        </form>
+    </field>
+</record>
+
+<act_window id="action_iot_pairing_wizard"
+            name="Pair New Agent"
+            res_model="iot.pairing.wizard"
+            view_mode="form"
+            target="new"
+            context="{'default_agent_id': active_id}"/>

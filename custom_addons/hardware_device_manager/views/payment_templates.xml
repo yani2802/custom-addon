@@ -1,0 +1,455 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Hardware Scanner Form Template -->
+    <template id="hardware_scanner_form" inherit_id="web.assets_backend">
+        <xpath expr="." position="inside">
+            <div t-name="HardwareScannerForm" owl="1">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Hardware Scanner Interface</h5>
+                            <button type="button" class="btn-close" t-on-click="onClose" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="form-label">Scanner Type</label>
+                                        <select class="form-control" t-model="state.scanner_type">
+                                            <option value="">Select Scanner Type</option>
+                                            <option value="barcode_scanner">Barcode Scanner</option>
+                                            <option value="nfc_reader">NFC Reader</option>
+                                            <option value="qr_scanner">QR Code Scanner</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="form-label">Device</label>
+                                        <select class="form-control" t-model="state.device_id">
+                                            <option value="">Select Device</option>
+                                            <t t-foreach="state.devices" t-as="device">
+                                                <option t-att-value="device.id" t-esc="device.name"/>
+                                            </t>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row" t-if="state.scanner_type">
+                                <div class="col-12">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h6 class="mb-0">
+                                                <span t-if="state.scanner_type == 'barcode_scanner'">Barcode Scanner</span>
+                                                <span t-if="state.scanner_type == 'nfc_reader'">NFC Reader</span>
+                                                <span t-if="state.scanner_type == 'qr_scanner'">QR Code Scanner</span>
+                                                Interface
+                                            </h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <!-- Barcode Scanner Interface -->
+                                            <div t-if="state.scanner_type == 'barcode_scanner'">
+                                                <div class="form-group mb-3">
+                                                    <label class="form-label">Barcode Format</label>
+                                                    <select class="form-control" t-model="state.barcode_format">
+                                                        <option value="auto">Auto Detect</option>
+                                                        <option value="code128">Code 128</option>
+                                                        <option value="code39">Code 39</option>
+                                                        <option value="ean13">EAN-13</option>
+                                                        <option value="ean8">EAN-8</option>
+                                                        <option value="upc">UPC</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group mb-3">
+                                                    <label class="form-label">Scanned Barcode</label>
+                                                    <div class="input-group">
+                                                        <input type="text" class="form-control" t-model="state.barcode_data" 
+                                                               placeholder="Scan or enter barcode manually"/>
+                                                        <button class="btn btn-outline-secondary" type="button" t-on-click="onClearBarcode">
+                                                            <i class="fa fa-times"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div class="form-check mb-3">
+                                                    <input class="form-check-input" type="checkbox" t-model="state.beep_enabled"/>
+                                                    <label class="form-check-label">Enable Beep Sound</label>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- NFC Reader Interface -->
+                                            <div t-if="state.scanner_type == 'nfc_reader'">
+                                                <div class="form-group mb-3">
+                                                    <label class="form-label">NFC Protocol</label>
+                                                    <select class="form-control" t-model="state.nfc_protocol">
+                                                        <option value="auto">Auto Detect</option>
+                                                        <option value="iso14443a">ISO 14443 Type A</option>
+                                                        <option value="iso14443b">ISO 14443 Type B</option>
+                                                        <option value="iso15693">ISO 15693</option>
+                                                        <option value="mifare">MIFARE</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group mb-3">
+                                                    <label class="form-label">Card UID</label>
+                                                    <div class="input-group">
+                                                        <input type="text" class="form-control" t-model="state.nfc_uid" 
+                                                               placeholder="Present NFC card to reader" readonly=""/>
+                                                        <button class="btn btn-outline-secondary" type="button" t-on-click="onClearNFC">
+                                                            <i class="fa fa-times"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group mb-3">
+                                                    <label class="form-label">Card Data</label>
+                                                    <textarea class="form-control" t-model="state.nfc_data" rows="3" 
+                                                              placeholder="NFC card data will appear here" readonly=""></textarea>
+                                                </div>
+                                                <div class="form-check mb-3">
+                                                    <input class="form-check-input" type="checkbox" t-model="state.continuous_polling"/>
+                                                    <label class="form-check-label">Continuous Polling</label>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- QR Scanner Interface -->
+                                            <div t-if="state.scanner_type == 'qr_scanner'">
+                                                <div class="form-group mb-3">
+                                                    <label class="form-label">QR Code Format</label>
+                                                    <select class="form-control" t-model="state.qr_format">
+                                                        <option value="auto">Auto Detect</option>
+                                                        <option value="qr">QR Code</option>
+                                                        <option value="datamatrix">Data Matrix</option>
+                                                        <option value="pdf417">PDF417</option>
+                                                        <option value="aztec">Aztec</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group mb-3">
+                                                    <label class="form-label">Scanned QR Data</label>
+                                                    <div class="input-group">
+                                                        <textarea class="form-control" t-model="state.qr_data" rows="3"
+                                                                  placeholder="Scan QR code or enter data manually"></textarea>
+                                                        <button class="btn btn-outline-secondary" type="button" t-on-click="onClearQR">
+                                                            <i class="fa fa-times"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-check mb-3">
+                                                            <input class="form-check-input" type="checkbox" t-model="state.auto_focus"/>
+                                                            <label class="form-check-label">Auto Focus</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-check mb-3">
+                                                            <input class="form-check-input" type="checkbox" t-model="state.flash_enabled"/>
+                                                            <label class="form-check-label">Enable Flash</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Common Controls -->
+                                            <div class="d-flex justify-content-center mt-3">
+                                                <button type="button" class="btn btn-success me-2" t-on-click="onStartScan"
+                                                        t-att-disabled="!state.device_id">
+                                                    <i class="fa fa-play"></i> Start Scanning
+                                                </button>
+                                                <button type="button" class="btn btn-warning me-2" t-on-click="onStopScan">
+                                                    <i class="fa fa-stop"></i> Stop Scanning
+                                                </button>
+                                                <button type="button" class="btn btn-info" t-on-click="onTestDevice"
+                                                        t-att-disabled="!state.device_id">
+                                                    <i class="fa fa-cog"></i> Test Device
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Status Display -->
+                            <div class="row mt-3" t-if="state.status_message">
+                                <div class="col-12">
+                                    <div class="alert" t-att-class="'alert-' + state.status_type">
+                                        <i class="fa" t-att-class="state.status_icon"></i>
+                                        <span t-esc="state.status_message"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Recent Scans -->
+                            <div class="row mt-3" t-if="state.recent_scans.length">
+                                <div class="col-12">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h6 class="mb-0">Recent Scans</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="table-responsive">
+                                                <table class="table table-sm">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Time</th>
+                                                            <th>Type</th>
+                                                            <th>Data</th>
+                                                            <th>Status</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <t t-foreach="state.recent_scans" t-as="scan">
+                                                            <tr>
+                                                                <td t-esc="scan.timestamp"></td>
+                                                                <td t-esc="scan.type"></td>
+                                                                <td t-esc="scan.data"></td>
+                                                                <td>
+                                                                    <span class="badge" t-att-class="'bg-' + scan.status_color" 
+                                                                          t-esc="scan.status"></span>
+                                                                </td>
+                                                            </tr>
+                                                        </t>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" t-on-click="onClose">Close</button>
+                            <button type="button" class="btn btn-primary" t-on-click="onSave"
+                                    t-att-disabled="!state.hasData()">Save Data</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
+    <!-- Barcode Scanner Widget -->
+    <template id="barcode_scanner_widget" inherit_id="web.assets_backend">
+        <xpath expr="." position="inside">
+            <div t-name="BarcodeScannerWidget" owl="1">
+                <div class="barcode-scanner-widget">
+                    <div class="input-group">
+                        <input type="text" class="form-control" t-model="state.barcode" 
+                               placeholder="Scan barcode here" t-on-keyup="onBarcodeInput"/>
+                        <button class="btn btn-outline-secondary" type="button" t-on-click="onScanBarcode">
+                            <i class="fa fa-barcode"></i>
+                        </button>
+                    </div>
+                    <small class="text-muted" t-if="state.last_scan">
+                        Last scan: <span t-esc="state.last_scan"></span>
+                    </small>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
+    <!-- NFC Reader Widget -->
+    <template id="nfc_reader_widget" inherit_id="web.assets_backend">
+        <xpath expr="." position="inside">
+            <div t-name="NFCReaderWidget" owl="1">
+                <div class="nfc-reader-widget">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <div class="nfc-status" t-att-class="'nfc-' + state.status">
+                                <i class="fa fa-wifi fa-2x mb-2"></i>
+                                <div>
+                                    <span t-if="state.status == 'waiting'">Present NFC card</span>
+                                    <span t-if="state.status == 'reading'">Reading card...</span>
+                                    <span t-if="state.status == 'success'">Card read successfully</span>
+                                    <span t-if="state.status == 'error'">Read error</span>
+                                </div>
+                            </div>
+                            <div class="mt-2" t-if="state.card_uid">
+                                <small class="text-muted">UID: <span t-esc="state.card_uid"></span></small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
+    <!-- QR Scanner Widget -->
+    <template id="qr_scanner_widget" inherit_id="web.assets_backend">
+        <xpath expr="." position="inside">
+            <div t-name="QRScannerWidget" owl="1">
+                <div class="qr-scanner-widget">
+                    <div class="input-group">
+                        <textarea class="form-control" t-model="state.qr_data" rows="2"
+                                  placeholder="Scan QR code here"></textarea>
+                        <button class="btn btn-outline-secondary" type="button" t-on-click="onScanQR">
+                            <i class="fa fa-qrcode"></i>
+                        </button>
+                    </div>
+                    <small class="text-muted" t-if="state.last_scan">
+                        Last scan: <span t-esc="state.last_scan"></span>
+                    </small>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
+    <!-- Hardware Device Status Widget -->
+    <template id="hardware_device_status" inherit_id="web.assets_backend">
+        <xpath expr="." position="inside">
+            <div t-name="HardwareDeviceStatus" owl="1">
+                <div class="hardware-device-status">
+                    <div class="row">
+                        <t t-foreach="state.devices" t-as="device">
+                            <div class="col-md-4 mb-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="card-title mb-1" t-esc="device.name"></h6>
+                                                <small class="text-muted" t-esc="device.type"></small>
+                                            </div>
+                                            <div>
+                                                <span class="badge" t-att-class="'bg-' + device.status_color">
+                                                    <i class="fa" t-att-class="device.status_icon"></i>
+                                                    <span t-esc="device.status"></span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="mt-2">
+                                            <small class="text-muted">
+                                                Last activity: <span t-esc="device.last_activity"></span>
+                                            </small>
+                                        </div>
+                                        <div class="mt-2">
+                                            <button class="btn btn-sm btn-outline-primary me-1" 
+                                                    t-on-click="() => this.onTestDevice(device.id)">
+                                                Test
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-secondary" 
+                                                    t-on-click="() => this.onConfigureDevice(device.id)">
+                                                Configure
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
+    <!-- Scan History Widget -->
+    <template id="scan_history_widget" inherit_id="web.assets_backend">
+        <xpath expr="." position="inside">
+            <div t-name="ScanHistoryWidget" owl="1">
+                <div class="scan-history-widget">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">Scan History</h6>
+                            <button class="btn btn-sm btn-outline-secondary" t-on-click="onRefresh">
+                                <i class="fa fa-refresh"></i>
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Time</th>
+                                            <th>Device</th>
+                                            <th>Type</th>
+                                            <th>Data</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="state.scans" t-as="scan">
+                                            <tr>
+                                                <td t-esc="scan.timestamp"></td>
+                                                <td t-esc="scan.device_name"></td>
+                                                <td>
+                                                    <i class="fa" t-att-class="scan.type_icon"></i>
+                                                    <span t-esc="scan.type"></span>
+                                                </td>
+                                                <td>
+                                                    <span class="text-truncate" style="max-width: 200px;" 
+                                                          t-esc="scan.data" t-att-title="scan.data"></span>
+                                                </td>
+                                                <td>
+                                                    <span class="badge" t-att-class="'bg-' + scan.status_color" 
+                                                          t-esc="scan.status"></span>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div t-if="!state.scans.length" class="text-center text-muted py-3">
+                                No scans found
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
+    <!-- CSS Styles -->
+    <template id="hardware_scanner_styles" inherit_id="web.assets_backend">
+        <xpath expr="." position="inside">
+            <style>
+                .barcode-scanner-widget .input-group {
+                    margin-bottom: 0.5rem;
+                }
+                
+                .nfc-reader-widget .nfc-waiting {
+                    color: #6c757d;
+                }
+                
+                .nfc-reader-widget .nfc-reading {
+                    color: #0d6efd;
+                    animation: pulse 1s infinite;
+                }
+                
+                .nfc-reader-widget .nfc-success {
+                    color: #198754;
+                }
+                
+                .nfc-reader-widget .nfc-error {
+                    color: #dc3545;
+                }
+                
+                @keyframes pulse {
+                    0% { opacity: 1; }
+                    50% { opacity: 0.5; }
+                    100% { opacity: 1; }
+                }
+                
+                .qr-scanner-widget textarea {
+                    resize: vertical;
+                    min-height: 60px;
+                }
+                
+                .hardware-device-status .card {
+                    transition: transform 0.2s;
+                }
+                
+                .hardware-device-status .card:hover {
+                    transform: translateY(-2px);
+                }
+                
+                .scan-history-widget .table td {
+                    vertical-align: middle;
+                }
+                
+                .text-truncate {
+                    display: inline-block;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+            </style>
+        </xpath>
+    </template>
+</odoo>

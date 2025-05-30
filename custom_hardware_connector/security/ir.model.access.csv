@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_hardware_device_user,hardware.device user,model_hardware_device,base.group_user,1,0,0,0
+access_hardware_device_manager,hardware.device manager,model_hardware_device,base.group_system,1,1,1,1
+access_hardware_driver_user,hardware.driver user,model_hardware_driver,base.group_user,1,0,0,0
+access_hardware_driver_manager,hardware.driver manager,model_hardware_driver,base.group_system,1,1,1,1
+access_hardware_connection_user,hardware.connection user,model_hardware_connection,base.group_user,1,0,0,0
+access_hardware_connection_manager,hardware.connection manager,model_hardware_connection,base.group_system,1,1,1,1
+access_hardware_device_type_user,hardware.device.type user,model_hardware_device_type,base.group_user,1,0,0,0
+access_hardware_device_type_manager,hardware.device.type manager,model_hardware_device_type,base.group_system,1,1,1,1

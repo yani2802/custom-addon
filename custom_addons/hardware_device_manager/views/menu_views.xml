@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+          <!-- Main Hardware Menu -->
+          <menuitem id="menu_hardware_main" 
+                    name="Hardware Devices" 
+                    web_icon="hardware_device_manager,static/description/icon.png"
+                    sequence="100"/>
+    
+          <!-- Devices Section -->
+          <menuitem id="menu_hardware_devices" 
+                    name="Devices" 
+                    parent="menu_hardware_main" 
+                    sequence="10"/>
+    
+          <menuitem id="menu_hardware_device_list" 
+                    name="All Devices" 
+                    parent="menu_hardware_devices" 
+                    action="action_hardware_device_tree" 
+                    sequence="10"/>
+    
+          <menuitem id="menu_hardware_device_barcode" 
+                    name="Barcode Scanners" 
+                    parent="menu_hardware_devices" 
+                    action="action_hardware_device_barcode" 
+                    sequence="20"/>
+              
+          <menuitem id="menu_hardware_device_nfc" 
+                    name="NFC Readers" 
+                    parent="menu_hardware_devices" 
+                    action="action_hardware_device_nfc" 
+                    sequence="30"/>
+              
+          <menuitem id="menu_hardware_device_qr" 
+                    name="QR Scanners" 
+                    parent="menu_hardware_devices" 
+                    action="action_hardware_device_qr" 
+                    sequence="40"/>
+    
+          <!-- Agents Section -->
+          <menuitem id="menu_hardware_agents" 
+                    name="Agents" 
+                    parent="menu_hardware_main" 
+                    sequence="20"/>
+    
+          <menuitem id="menu_hardware_agent_list" 
+                    name="All Agents" 
+                    parent="menu_hardware_agents" 
+                    action="action_hardware_agent_tree" 
+                    sequence="10"/>
+              
+          <menuitem id="menu_hardware_agent_discovery" 
+                    name="Device Discovery" 
+                    parent="menu_hardware_agents" 
+                    action="action_device_discovery_wizard" 
+                    sequence="20"/>
+    
+          <!-- Monitoring Section -->
+          <menuitem id="menu_hardware_monitoring" 
+                    name="Monitoring" 
+                    parent="menu_hardware_main" 
+                    sequence="30"/>
+    
+          <menuitem id="menu_scan_logs" 
+                    name="Scan Logs" 
+                    parent="menu_hardware_monitoring" 
+                    action="action_device_scan_log_tree" 
+                    sequence="10"/>
+              
+          <menuitem id="menu_device_status" 
+                    name="Device Status" 
+                    parent="menu_hardware_monitoring" 
+                    action="action_device_status_dashboard" 
+                    sequence="20"/>
+    
+          <!-- Configuration Section -->
+          <menuitem id="menu_hardware_config" 
+                    name="Configuration" 
+                    parent="menu_hardware_main" 
+                    sequence="40"
+                    groups="base.group_system"/>
+    
+          <menuitem id="menu_hardware_settings" 
+                    name="Settings" 
+                    parent="menu_hardware_config" 
+                    action="action_hardware_settings" 
+                    sequence="10"/>
+
+          <!-- ============ ACTIONS ============ -->
+    
+          <!-- Main Device Actions -->
+          <record id="action_hardware_device_tree" model="ir.actions.act_window">
+              <field name="name">Hardware Devices</field>
+              <field name="res_model">hardware.device</field>
+              <field name="view_mode">tree,form,kanban</field>
+              <field name="view_id" ref="view_hardware_device_tree"/>
+              <field name="search_view_id" ref="view_hardware_device_search"/>
+              <field name="help" type="html">
+                  <p class="o_view_nocontent_smiling_face">
+                      Create your first hardware device!
+                  </p>
+                  <p>
+                      Add barcode scanners, NFC readers, QR code scanners and other hardware devices to start managing them.
+                  </p>
+              </field>
+          </record>
+    
+          <!-- Device Type Specific Actions -->
+          <record id="action_hardware_device_barcode" model="ir.actions.act_window">
+              <field name="name">Barcode Scanners</field>
+              <field name="res_model">hardware.device</field>
+              <field name="view_mode">tree,form,kanban</field>
+              <field name="domain">[('device_type', '=', 'barcode_scanner')]</field>
+              <field name="context">{'default_device_type': 'barcode_scanner'}</field>
+              <field name="view_id" ref="view_hardware_device_tree"/>
+          </record>
+    
+          <record id="action_hardware_device_nfc" model="ir.actions.act_window">
+              <field name="name">NFC Readers</field>
+              <field name="res_model">hardware.device</field>
+              <field name="view_mode">tree,form,kanban</field>
+              <field name="domain">[('device_type', '=', 'nfc_reader')]</field>
+              <field name="context">{'default_device_type': 'nfc_reader'}</field>
+              <field name="view_id" ref="view_hardware_device_tree"/>
+          </record>
+    
+          <record id="action_hardware_device_qr" model="ir.actions.act_window">
+              <field name="name">QR Code Scanners</field>
+              <field name="res_model">hardware.device</field>
+              <field name="view_mode">tree,form,kanban</field>
+              <field name="domain">[('device_type', '=', 'qr_scanner')]</field>
+              <field name="context">{'default_device_type': 'qr_scanner'}</field>
+              <field name="view_id" ref="view_hardware_device_tree"/>
+          </record>
+    
+          <!-- Agent Actions -->
+          <record id="action_hardware_agent_tree" model="ir.actions.act_window">
+              <field name="name">Hardware Agents</field>
+              <field name="res_model">hardware.agent</field>
+              <field name="view_mode">tree,form,kanban</field>
+              <field name="view_id" ref="view_hardware_agent_tree"/>
+              <field name="help" type="html">
+                  <p class="o_view_nocontent_smiling_face">
+                      No hardware agents found!
+                  </p>
+                  <p>
+                      Hardware agents manage device discovery and connections. 
+                      Install the hardware agent software on your network to get started.
+                  </p>
+              </field>
+          </record>
+    
+          <!-- Scan Log Actions -->
+          <record id="action_device_scan_log_tree" model="ir.actions.act_window">
+              <field name="name">Device Scan Logs</field>
+              <field name="res_model">device.scan.log</field>
+              <field name="view_mode">tree,form,graph,pivot</field>
+              <field name="view_id" ref="view_device_scan_log_tree"/>
+              <field name="search_view_id" ref="view_device_scan_log_search"/>
+          </record>
+    
+          <!-- Dashboard Action -->
+          <record id="action_device_status_dashboard" model="ir.actions.act_window">
+              <field name="name">Device Status Dashboard</field>
+              <field name="res_model">hardware.device</field>
+              <field name="view_mode">kanban,tree</field>
+              <field name="view_id" ref="view_hardware_device_kanban"/>
+          </record>
+    
+          <!-- Discovery Wizard -->
+          <record id="action_device_discovery_wizard" model="ir.actions.act_window">
+              <field name="name">Device Discovery</field>
+              <field name="res_model">device.discovery.wizard</field>
+              <field name="view_mode">form</field>
+              <field name="target">new</field>
+              <field name="view_id" ref="view_device_discovery_wizard_form"/>
+          </record>
+    
+          <!-- Settings Action -->
+          <record id="action_hardware_settings" model="ir.actions.act_window">
+              <field name="name">Hardware Settings</field>
+              <field name="res_model">hardware.settings</field>
+              <field name="view_mode">form</field>
+              <field name="target">inline</field>
+              <field name="view_id" ref="view_hardware_settings_form"/>
+          </record>
+</odoo>

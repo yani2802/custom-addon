@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_hardware_device,access_hardware_device,model_hardware_device,base.group_user,1,1,1,1
+access_hardware_agent,access_hardware_agent,model_hardware_agent,base.group_user,1,1,1,1
+access_device_scan_log,access_device_scan_log,model_device_scan_log,base.group_user,1,1,1,1

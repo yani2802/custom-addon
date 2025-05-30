@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tree View -->
+    <record id="view_hardware_device_tree" model="ir.ui.view">
+        <field name="name">hardware.device.tree</field>
+        <field name="model">hardware.device</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="device_type"/>
+                <field name="status"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_hardware_device_form" model="ir.ui.view">
+        <field name="name">hardware.device.form</field>
+        <field name="model">hardware.device</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="device_type"/>
+                        <field name="status"/>
+                        <field name="notes"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_hardware_device" model="ir.actions.act_window">
+        <field name="name">Hardware Devices</field>
+        <field name="res_model">hardware.device</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Menu -->
+    <menuitem id="menu_hardware_main" name="Hardware Devices" sequence="10"/>
+    <menuitem id="menu_hardware_devices" name="Devices" parent="menu_hardware_main" action="action_hardware_device" sequence="10"/>
+</odoo>

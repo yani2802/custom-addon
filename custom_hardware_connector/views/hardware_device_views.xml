@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tree View -->
+    <record id="view_hardware_device_tree" model="ir.ui.view">
+        <field name="name">hardware.device.tree</field>
+        <field name="model">hardware.device</field>
+        <field name="arch" type="xml">
+            <tree decoration-success="status == 'connected'" decoration-danger="status == 'error'" decoration-muted="status == 'disconnected'">
+                <field name="name"/>
+                <field name="device_type"/>
+                <field name="connection_type"/>
+                <field name="connection_string"/>
+                <field name="status"/>
+                <field name="driver_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_hardware_device_form" model="ir.ui.view">
+        <field name="name">hardware.device.form</field>
+        <field name="model">hardware.device</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="connect_device" string="Connect" type="object" class="oe_highlight" attrs="{'invisible': [('status', '=', 'connected')]}"/>
+                    <button name="disconnect_device" string="Disconnect" type="object" attrs="{'invisible': [('status', '!=', 'connected')]}"/>
+                    <button name="test_connection" string="Test Connection" type="object"/>
+                    <field name="status" widget="statusbar" statusbar_visible="connected,disconnected,error"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Device Name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="device_type_id"/>
+                            <field name="device_type"/>
+                            <field name="connection_type"/>
+                            <field name="identifier"/>
+                            <field name="driver_id"/>
+                        </group>
+                        <group>
+                            <field name="ip_address" attrs="{'invisible': [('connection_type', '!=', 'network')], 'required': [('connection_type', '=', 'network')]}"/>
+                            <field name="port" attrs="{'invisible': [('connection_type', '!=', 'network')]}"/>
+                            <field name="connection_string" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Configuration" name="configuration">
+                            <field name="config_data" widget="json_editor"/>
+                        </page>
+                        <page string="Connection History" name="connection_history">
+                            <field name="connection_ids">
+                                <tree>
+                                    <field name="connection_time"/>
+                                    <field name="disconnection_time"/>
+                                    <field name="status"/>
+                                    <field name="duration" widget="float_time"/>
+                                    <field name="notes"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_hardware_device_search" model="ir.ui.view">
+        <field name="name">hardware.device.search</field>
+        <field name="model">hardware.device</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="device_type"/>
+                <field name="connection_type"/>
+                <field name="identifier"/>
+                <field name="ip_address"/>
+                <field name="driver_id"/>
+                <filter string="Connected" name="connected" domain="[('status', '=', 'connected')]"/>
+                <filter string="Disconnected" name="disconnected" domain="[('status', '=', 'disconnected')]"/>
+                <filter string="Error" name="error" domain="[('status', '=', 'error')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Device Type" name="group_by_type" context="{'group_by': 'device_type'}"/>
+                    <filter string="Connection Type" name="group_by_connection" context="{'group_by': 'connection_type'}"/>
+                    <filter string="Status" name="group_by_status" context="{'group_by': 'status'}"/>
+                    <filter string="Driver" name="group_by_driver" context="{'group_by': 'driver_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_hardware_device" model="ir.actions.act_window">
+        <field name="name">Hardware Devices</field>
+        <field name="res_model">hardware.device</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_hardware_device_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Add a new hardware device
+            </p>
+            <p>
+                Create and manage hardware devices that connect directly to your Odoo instance.
+            </p>
+        </field>
+    </record>
+</odoo>
